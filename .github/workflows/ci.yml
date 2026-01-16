@@ -1,0 +1,34 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/opsgpt:${{ github.sha }} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/opsgpt:${{ github.sha }}
+
+      - name: Update Manifest in GitOps Repo
+        run: |
+          git config --global user.email "devops-bot@example.com"
+          git config --global user.name "DevOps Bot"
+          git clone https://${{ secrets.GITOPS_PAT }}@github.com/${{ github.repository_owner }}/opsgpt-gitops.git
+          cd opsgpt-gitops
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/opsgpt:${{ github.sha }}|g" manifests/deployment.yaml
+          git add .
+          git commit -m "Update image to ${{ github.sha }}"
+          git push
