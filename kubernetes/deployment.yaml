@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsgpt-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opsgpt
+  template:
+    metadata:
+      labels:
+        app: opsgpt
+    spec:
+      containers:
+      - name: opsgpt-container
+        image: YOUR_DOCKER_USERNAME/opsgpt:latest # REPLACE THIS
+        ports:
+        - containerPort: 8080
