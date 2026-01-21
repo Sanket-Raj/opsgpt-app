@@ -1,0 +1,3 @@
+Implement Prometheus metrics for API latency monitoring.
+Add resource limits and Horizontal Pod Autoscaling (HPA).
+Integrate a frontend UI for easier model interaction
